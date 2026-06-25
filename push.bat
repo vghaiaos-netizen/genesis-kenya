@@ -1,14 +1,21 @@
 @echo off
 REM push.bat - Local development push script for Windows
 REM Usage: push.bat "Your commit message"
+REM Set GIT_TOKEN environment variable locally before running
 
 if "%1"=="" (
-  echo Uh oh Usage: push.bat "Your commit message"
+  echo Usage: push.bat "Your commit message"
   exit /b 1
 )
 
 setlocal enabledelayedexpansion
-set GITHUB_TOKEN=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
+set GITHUB_TOKEN=%GIT_TOKEN%
+if "!GITHUB_TOKEN!"=="" (
+  echo Error: GIT_TOKEN environment variable not set
+  echo Please set your GitHub token: set GIT_TOKEN=your-token
+  exit /b 1
+)
+
 set REPO_URL=https://!GITHUB_TOKEN!@github.com/vghaiaos-netizen/genesis-kenya.git
 
 echo Staging changes...

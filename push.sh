@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-GITHUB_TOKEN="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"
+GITHUB_TOKEN="${GIT_TOKEN:-your-github-token-here}"  # Set GIT_TOKEN env var locally
 REPO_URL="https://${GITHUB_TOKEN}@github.com/vghaiaos-netizen/genesis-kenya.git"
 
 echo "📦 Staging changes..."
@@ -28,6 +28,6 @@ if [ $? -eq 0 ]; then
   echo "✅ Push successful! Vercel is auto-deploying..."
   echo "📊 Check deployment status: https://vercel.com/genesis-kenya"
 else
-  echo "❌ Push failed"
+  echo "❌ Push failed - ensure GIT_TOKEN environment variable is set"
   exit 1
 fi
