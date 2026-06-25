@@ -12,39 +12,11 @@
     }
   ],
   "functions": {
-    "api/submit-application.js": {
-      "memory": 512,
-      "maxDuration": 30
-    },
-    "api/initiate-payment.js": {
-      "memory": 512,
-      "maxDuration": 60
-    },
-    "api/payment-callback.js": {
-      "memory": 512,
-      "maxDuration": 30
-    },
-    "api/check-payment-status.js": {
-      "memory": 512,
-      "maxDuration": 30
-    },
-    "api/tour-registration.js": {
-      "memory": 512,
-      "maxDuration": 30
-    },
-    "api/chat.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
-  "env": {
-    "GOOGLE_SHEET_ID": "@genesis_google_sheet_id",
-    "GOOGLE_SERVICE_ACCOUNT_EMAIL": "@genesis_google_service_email",
-    "GOOGLE_PRIVATE_KEY": "@genesis_google_private_key",
-    "TUMA_API_KEY": "@genesis_tuma_api_key",
-    "TUMA_EMAIL": "@genesis_tuma_email",
-    "GROQ_API_KEY_1": "@genesis_groq_key_1",
-    "GROQ_API_KEY_2": "@genesis_groq_key_2",
-    "GROQ_API_KEY_3": "@genesis_groq_key_3"
+    "api/submit-application.js": { "memory": 512, "maxDuration": 30 },
+    "api/initiate-payment.js": { "memory": 512, "maxDuration": 60 },
+    "api/payment-callback.js": { "memory": 512, "maxDuration": 30 },
+    "api/check-payment-status.js": { "memory": 512, "maxDuration": 30 },
+    "api/tour-registration.js": { "memory": 512, "maxDuration": 30 },
+    "api/chat.js": { "memory": 1024, "maxDuration": 60 }
   }
 }
