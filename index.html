@@ -858,12 +858,20 @@ footer{background:var(--obsidian);border-top:1px solid rgba(200,134,10,0.12)}
           <button class="form-btn" onclick="nextStep(5)">Proceed to payment →</button>
         </div>
         <div class="form-step" id="step5">
-          <div class="mpesa-box"><div class="mpesa-logo">M-PESA</div><div class="mpesa-inst">An STK push will be sent to your phone. Enter your M-Pesa PIN to authorise <strong>KES 1,500</strong>.</div></div>
-          <div class="form-group"><label>Confirm M-Pesa phone number</label><input type="tel" id="f_mpesa" placeholder="254712345678"/></div>
+          <div class="mpesa-box">
+            <div class="mpesa-logo">M-PESA PAYBILL</div>
+            <div class="mpesa-inst">
+              Send <strong>KES 1,500</strong> via M-Pesa Paybill:<br/><br/>
+              Paybill No: <strong style="font-size:1.15rem;letter-spacing:0.06em">247247</strong><br/>
+              Account No: <strong style="font-size:1.15rem;letter-spacing:0.06em">0710187461729</strong><br/><br/>
+              Once the payment goes through, M-Pesa will send you a confirmation SMS with a code (e.g. <em>QGH12ABC34</em>). Enter it below.
+            </div>
+          </div>
+          <div class="form-group"><label>M-Pesa confirmation code *</label><input type="text" id="f_mpesa_code" placeholder="e.g. QGH12ABC34" style="text-transform:uppercase;letter-spacing:0.06em"/></div>
           <div class="form-group"><label>How did you hear about Genesis?</label><select id="f_source"><option>Social media</option><option>Friend</option><option>Tour</option><option>Search</option><option>Clinic</option><option>Other</option></select></div>
           <p style="font-size:0.75rem;color:var(--text-muted-ivory);margin-bottom:1.2rem;line-height:1.65">The fee is refunded in full if you do not proceed.</p>
           <button class="form-btn-ghost" onclick="nextStep(4)">← Back</button>
-          <button class="form-btn" id="payBtn" onclick="submitApplication()">Pay KES 1,500 via M-Pesa</button>
+          <button class="form-btn" id="payBtn" onclick="submitApplication()">Submit application →</button>
         </div>
         <div class="form-step" id="stepSuccess">
           <div class="success-state">
@@ -981,11 +989,34 @@ function nextStep(n){
   document.getElementById('stepLabel').textContent=stepLabels[currentStep];
 }
 function submitApplication(){
-  var ref='GEN-'+Math.random().toString(36).substr(2,6).toUpperCase();
-  document.getElementById('refNumber').textContent=ref;
-  document.getElementById('step5').classList.remove('active');
-  document.getElementById('stepSuccess').classList.add('active');
-  for(var i=1;i<=5;i++)document.getElementById('ps'+i).classList.add('active');
+  var mpesaCode=document.getElementById('f_mpesa_code').value.trim().toUpperCase();
+  if(!mpesaCode){alert('Please enter your M-Pesa confirmation code before submitting.');return;}
+  var btn=document.getElementById('payBtn');
+  btn.disabled=true;btn.textContent='Submitting…';
+  var firstName=document.getElementById('f_first').value.trim();
+  var lastName=document.getElementById('f_last').value.trim();
+  var email=document.getElementById('f_email').value.trim();
+  var phone=document.getElementById('f_phone').value.trim();
+  var county=document.getElementById('f_county').value;
+  var dob=document.getElementById('f_dob').value;
+  var source=document.getElementById('f_source').value;
+  fetch('/api/submit-application',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({firstName:firstName,lastName:lastName,email:email,phone:phone,county:county,dob:dob,source:source,mpesaCode:mpesaCode})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(!data.success){throw new Error(data.error||'Submission failed. Please try again.');}
+    document.getElementById('refNumber').textContent=data.refNumber;
+    document.getElementById('step5').classList.remove('active');
+    document.getElementById('stepSuccess').classList.add('active');
+    for(var i=1;i<=5;i++)document.getElementById('ps'+i).classList.add('active');
+  })
+  .catch(function(err){
+    btn.disabled=false;btn.textContent='Submit application →';
+    alert('Error: '+(err.message||'Something went wrong. Please try again.'));
+  });
 }
 function toggleFaq(el){var item=el.parentElement,isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open');i.querySelector('.faq-a').style.maxHeight='0';});if(!isOpen){item.classList.add('open');item.querySelector('.faq-a').style.maxHeight=item.querySelector('.faq-a-inner').scrollHeight+'px';}}
 function scrollTour(dir){document.getElementById('tourCarousel').scrollBy({left:dir*290,behavior:'smooth'});}
@@ -996,11 +1027,20 @@ function sendChat(){
   var inp=document.getElementById('chatInput'),msg=inp.value.trim();
   if(!msg)return;
   inp.value='';
-  var d=document.createElement('div');d.className='chat-msg user';d.textContent=msg;document.getElementById('chatMessages').appendChild(d);
-  setTimeout(function(){
-    var r=document.createElement('div');r.className='chat-msg bot';r.textContent='Thanks for your question! Our team will get back to you within 24 hours at nairobi@genesis.co.ke or WhatsApp +254 700 000 000.';document.getElementById('chatMessages').appendChild(r);
-    document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight;
-  },800);
+  var msgs=document.getElementById('chatMessages');
+  var d=document.createElement('div');d.className='chat-msg user';d.textContent=msg;msgs.appendChild(d);
+  var typing=document.createElement('div');typing.className='chat-msg bot';typing.textContent='…';msgs.appendChild(typing);
+  msgs.scrollTop=msgs.scrollHeight;
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    typing.textContent=data.reply||'Thanks for your question. Our team will get back to you soon.';
+    msgs.scrollTop=msgs.scrollHeight;
+  })
+  .catch(function(){
+    typing.textContent='Thanks for your question! Our team will get back to you within 24 hours at nairobi@genesis.co.ke or WhatsApp +254 700 000 000.';
+    msgs.scrollTop=msgs.scrollHeight;
+  });
 }
 document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var target=document.querySelector(this.getAttribute('href'));if(target){e.preventDefault();window.scrollTo({top:target.getBoundingClientRect().top+window.pageYOffset-80,behavior:'smooth'});}});});
 </script>
