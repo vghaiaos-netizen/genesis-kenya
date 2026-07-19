@@ -1,5 +1,5 @@
 // api/submit-application.js
-import SheetsHelper from './sheets-helper.js';
+import { insertRow } from './db.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,31 +14,24 @@ export default async function handler(req, res) {
     }
 
     const refNumber = `GEN-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    const sheetsHelper = new SheetsHelper();
-    await sheetsHelper.init();
 
-    const result = await sheetsHelper.appendRow('Applications', [
-      refNumber,
-      firstName,
-      lastName,
+    await insertRow('applications', {
+      ref: refNumber,
+      first_name: firstName,
+      last_name: lastName,
       email,
       phone,
       county,
-      dob || '',
-      source || '',
-      mpesaCode,
-      new Date().toISOString(),
-      'pending_verification',
-    ]);
-
-    if (!result.success) {
-      return res.status(500).json({ error: 'Failed to save application', details: result.error });
-    }
+      dob: dob || null,
+      source: source || null,
+      mpesa_code: mpesaCode,
+      status: 'pending_verification',
+    });
 
     return res.status(200).json({
       success: true,
       refNumber,
-      message: `Application submitted. Your reference is ${refNumber}. Our team will contact you within 3–5 business days.`,
+      message: `Application submitted. Reference: ${refNumber}. Our team will contact you within 3–5 business days.`,
     });
   } catch (error) {
     console.error('Application submission error:', error);
