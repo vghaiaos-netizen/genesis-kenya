@@ -1,5 +1,5 @@
 // api/tour-registration.js
-import SheetsHelper from './sheets-helper.js';
+import { insertRow } from './db.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,20 +13,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const sheetsHelper = new SheetsHelper();
-    await sheetsHelper.init();
-
-    const result = await sheetsHelper.appendRow('Tour Registrations', [
-      name,
-      email,
-      phone,
-      city,
-      new Date().toISOString(),
-    ]);
-
-    if (!result.success) {
-      return res.status(500).json({ error: 'Failed to register for tour', details: result.error });
-    }
+    await insertRow('tour_registrations', { name, email, phone, city });
 
     return res.status(200).json({
       success: true,
