@@ -7,9 +7,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { firstName, lastName, email, phone, county, dob } = req.body;
+    const { firstName, lastName, email, phone, county, dob, source, mpesaCode } = req.body;
 
-    if (!firstName || !lastName || !email || !phone || !county) {
+    if (!firstName || !lastName || !email || !phone || !county || !mpesaCode) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -24,9 +24,11 @@ export default async function handler(req, res) {
       email,
       phone,
       county,
-      dob,
+      dob || '',
+      source || '',
+      mpesaCode,
       new Date().toISOString(),
-      'pending',
+      'pending_verification',
     ]);
 
     if (!result.success) {
