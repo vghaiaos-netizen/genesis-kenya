@@ -17,6 +17,7 @@
     "api/payment-callback.js": { "memory": 512, "maxDuration": 30 },
     "api/check-payment-status.js": { "memory": 512, "maxDuration": 30 },
     "api/tour-registration.js": { "memory": 512, "maxDuration": 30 },
-    "api/chat.js": { "memory": 1024, "maxDuration": 60 }
+    "api/chat.js": { "memory": 1024, "maxDuration": 60 },
+    "api/admin.js": { "memory": 512, "maxDuration": 30 }
   }
 }
