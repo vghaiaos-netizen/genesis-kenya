@@ -46,6 +46,19 @@ class SheetsHelper {
     }
   }
 
+  async getRows(tabName) {
+    try {
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: `${tabName}!A:Z`,
+      });
+      return { success: true, rows: response.data.values || [] };
+    } catch (err) {
+      console.error('Sheets get error:', err.message);
+      return { success: false, error: err.message, rows: [] };
+    }
+  }
+
   async updateCell(tabName, range, value) {
     try {
       await this.sheets.spreadsheets.values.update({
